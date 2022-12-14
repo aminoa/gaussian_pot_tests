@@ -88,7 +88,7 @@ def benchmark_results(a, b, size, lambd, iterations, horn_iterations, verbose=Tr
 size = 784 # needed for image testing
 max = 10000
 lambd = 100
-iterations = 5
+iterations = 10
 horn_iterations = 1000000
 
 a, b = generate_marginals(size, max)
