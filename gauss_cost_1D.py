@@ -15,7 +15,7 @@ from operator import add
 from PIL import Image
 from matrix_generators import generate_square_gaussian, generate_square_ones, generate_square_random
 from matrix_scaling_stock import sinkhorn_log, greenkhorn
-from matrix_scaling_modified import greenkhorn_basic_rng
+from matrix_scaling_modified import greenkhorn_inverse_gauss
 
 np.seterr(divide="ignore", invalid="ignore")
 
@@ -39,12 +39,12 @@ def benchmark(a, b, M, lambd, iterations, hornIterations, error_allowed, verbose
         end_time = time.time()
         G0_time = end_time - start_time 
 
-        # sinkhorn solver (bregman)
-        start_time = time.time()
-        GS = sinkhorn_log(a, b, M, lambd, numItermax=hornIterations, method="sinkhorn_log")
-        end_time = time.time()
-        GS_time = end_time - start_time
-        GS_mse = mean_squared_error(GS, G0)
+        # # sinkhorn solver (bregman)
+        # start_time = time.time()
+        # GS = sinkhorn_log(a, b, M, lambd, numItermax=hornIterations, method="sinkhorn_log")
+        # end_time = time.time()
+        # GS_time = end_time - start_time
+        # GS_mse = mean_squared_error(GS, G0)
 
         # greenkhorn solver (bregman)
         start_time = time.time()
@@ -53,31 +53,31 @@ def benchmark(a, b, M, lambd, iterations, hornIterations, error_allowed, verbose
         GG_mse = mean_squared_error(GG, G0)
         GG_time = end_time - start_time
 
-        # # grankhorn solver (custom)
-        # start_time = time.time()
-        # GR = greenkhorn_basic_rng(a, b, M, lambd, hornIterations, error_allowed)
-        # end_time = time.time()
-        # GR_mse = mean_squared_error(GR, G0)
-        # GR_time = end_time - start_time
+        # greenkhorn inverse gauss solver (custom)
+        start_time = time.time()
+        GR = greenkhorn_inverse_gauss(a, b, M, lambd, hornIterations, error_allowed)
+        end_time = time.time()
+        GR_mse = mean_squared_error(GR, G0)
+        GR_time = end_time - start_time
 
-        bench = [G0_time, GS_time, GG_time, GS_mse, GG_mse]
-        # bench = [G0_time, GG_time, GR_time, GG_mse, GR_mse]
+        # bench = [G0_time, GS_time, GG_time, GS_mse, GG_mse]
+        bench = [G0_time, GG_time, GR_time, GG_mse, GR_mse]
         results = [sum(x) for x in zip(results, bench)]
 
         
 
     if verbose:
-        print("G0_Time: " + str(results[0]))
-        print("GS_Time: " + str(results[1]))
-        print("GG_Time: " + str(results[2]))
-        print("GS_MSE: " + str(results[3]))
-        print("GG_MSE: " + str(results[4]))
-
         # print("G0_Time: " + str(results[0]))
-        # print("GG_Time: " + str(results[1]))
-        # print("GR_Time: " + str(results[2]))
-        # print("GG_MSE: " + str(results[3]))
-        # print("GR_MSE: " + str(results[4]))
+        # print("GS_Time: " + str(results[1]))
+        # print("GG_Time: " + str(results[2]))
+        # print("GS_MSE: " + str(results[3]))
+        # print("GG_MSE: " + str(results[4]))
+
+        print("G0_Time: " + str(results[0]))
+        print("GG_Time: " + str(results[1]))
+        print("GR_Time: " + str(results[2]))
+        print("GG_MSE: " + str(results[3]))
+        print("GR_MSE: " + str(results[4]))
 
     return [val / iterations for val in results]
 
@@ -107,54 +107,52 @@ def benchmark_results(a, b, size, lambd, iterations, horn_iterations, error_allo
     M_G_results = benchmark(a, b, M_G, lambd, iterations, horn_iterations, error_allowed, verbose=True)
     return M_C_results, M_R_results, M_G_results
 
-size = 10000 # needed for image testing
+size = 784 # 784 needed for image testing
 max = 10000
 lambd = 1
-iterations = 1
+iterations = 5
 horn_iterations = 10000
 error_allowed = 0.1
 
-a, b = generate_marginals(size, max)
-benchmark_results(a, b, size, lambd, iterations, horn_iterations, error_allowed, verbose = False)
+# a, b = generate_marginals(size, max)
+# benchmark_results(a, b, size, lambd, iterations, horn_iterations, error_allowed, verbose = False)
 
-# print("Zero Results")
-# zero_1, zero_2 = load_image("MNIST/0/1.jpg", "MNIST/0/21.jpg")
-# benchmark_results(zero_1, zero_2, size, lambd, iterations, horn_iterations, error_allowed)
+print("Zero Results")
+zero_1, zero_2 = load_image("MNIST/0/1.jpg", "MNIST/0/21.jpg")
+benchmark_results(zero_1, zero_2, size, lambd, iterations, horn_iterations, error_allowed)
 
-# print("One Results")
-# one_1, one_2 = load_image("MNIST/1/3.jpg", "MNIST/1/6.jpg")
-# benchmark_results(one_1, one_2, size, lambd, iterations, horn_iterations, error_allowed)
+print("One Results")
+one_1, one_2 = load_image("MNIST/1/3.jpg", "MNIST/1/6.jpg")
+benchmark_results(one_1, one_2, size, lambd, iterations, horn_iterations, error_allowed)
 
-# print("Two Results")
-# two_1, two_2 = load_image("MNIST/3/7.jpg", "MNIST/3/10.jpg")
-# benchmark_results(two_1, two_2, size, lambd, iterations, horn_iterations, error_allowed)
+print("Two Results")
+two_1, two_2 = load_image("MNIST/3/7.jpg", "MNIST/3/10.jpg")
+benchmark_results(two_1, two_2, size, lambd, iterations, horn_iterations, error_allowed)
 
-# print("Three Results")
-# three_1, three_2 = load_image("MNIST/3/7.jpg", "MNIST/3/10.jpg")
-# benchmark_results(three_1, three_2, size, lambd, iterations, horn_iterations, error_allowed)
+print("Three Results")
+three_1, three_2 = load_image("MNIST/3/7.jpg", "MNIST/3/10.jpg")
+benchmark_results(three_1, three_2, size, lambd, iterations, horn_iterations, error_allowed)
 
-# print("Four Results")
-# four_1, four_2 = load_image("MNIST/4/2.jpg", "MNIST/4/9.jpg")
-# benchmark_results(four_1, four_2, size, lambd, iterations, horn_iterations, error_allowed)
+print("Four Results")
+four_1, four_2 = load_image("MNIST/4/2.jpg", "MNIST/4/9.jpg")
+benchmark_results(four_1, four_2, size, lambd, iterations, horn_iterations, error_allowed)
 
-# print("Five Results")
-# five_1, five_2 = load_image("MNIST/5/0.jpg", "MNIST/5/11.jpg")
-# benchmark_results(five_1, five_2, size, lambd, iterations, horn_iterations, error_allowed)
+print("Five Results")
+five_1, five_2 = load_image("MNIST/5/0.jpg", "MNIST/5/11.jpg")
+benchmark_results(five_1, five_2, size, lambd, iterations, horn_iterations, error_allowed)
 
-# print("Six Results")
-# six_1, six_2 = load_image("MNIST/6/13.jpg", "MNIST/6/18.jpg")
-# benchmark_results(six_1, six_2, size, lambd, iterations, horn_iterations, error_allowed)
+print("Six Results")
+six_1, six_2 = load_image("MNIST/6/13.jpg", "MNIST/6/18.jpg")
+benchmark_results(six_1, six_2, size, lambd, iterations, horn_iterations, error_allowed)
 
-# print("Seven Results")
-# seven_1, seven_2 = load_image("MNIST/7/15.jpg", "MNIST/7/29.jpg")
-# benchmark_results(seven_1, seven_2, size, lambd, iterations, horn_iterations, error_allowed)
+print("Seven Results")
+seven_1, seven_2 = load_image("MNIST/7/15.jpg", "MNIST/7/29.jpg")
+benchmark_results(seven_1, seven_2, size, lambd, iterations, horn_iterations, error_allowed)
 
-# print("Eight Results")
-# eight_1, eight_2 = load_image("MNIST/8/17.jpg", "MNIST/8/31.jpg")
-# benchmark_results(eight_1, eight_2, size, lambd, iterations, horn_iterations, error_allowed)
+print("Eight Results")
+eight_1, eight_2 = load_image("MNIST/8/17.jpg", "MNIST/8/31.jpg")
+benchmark_results(eight_1, eight_2, size, lambd, iterations, horn_iterations, error_allowed)
 
-# print("Nine Results")
-# nine_1, nine_2 = load_image("MNIST/9/4.jpg", "MNIST/9/19.jpg")
-# benchmark_results(nine_1, nine_2, size, lambd, iterations, horn_iterations, error_allowed)
-
-# constant dataset, all 1/n, then pertube the numbers by x% (this will be hard since )
+print("Nine Results")
+nine_1, nine_2 = load_image("MNIST/9/4.jpg", "MNIST/9/19.jpg")
+benchmark_results(nine_1, nine_2, size, lambd, iterations, horn_iterations, error_allowed)
