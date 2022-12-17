@@ -50,7 +50,6 @@ print("GS_Time: " + str(GS_time))
 print("GG_MSE: " + str(GG_mse))
 print("GG_Time: " + str(GG_time))
 
-
 # a = gauss(n, m=20, s=5)
 # b = gauss(n, m=60, s=10)
 # M = ot.dist(x.reshape((n, 1)), x.reshape((n, 1)))

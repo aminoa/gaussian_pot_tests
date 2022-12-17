@@ -8,6 +8,7 @@ from scipy.optimize import fmin_l_bfgs_b
 from ot.utils import unif, dist, list_to_array
 
 from ot.backend import get_backend
+from datetime import datetime
 
 def sinkhorn_log(a, b, M, reg, numItermax=1000, stopThr=1e-9, verbose=False, log=False, warn=True, **kwargs):
     a, b, M = list_to_array(a, b, M)
@@ -17,7 +18,8 @@ def sinkhorn_log(a, b, M, reg, numItermax=1000, stopThr=1e-9, verbose=False, log
         a = nx.full((M.shape[0],), 1.0 / M.shape[0], type_as=M)
     if len(b) == 0:
         b = nx.full((M.shape[1],), 1.0 / M.shape[1], type_as=M)
-
+    
+    
     # init data
     dim_a = len(a)
     dim_b = b.shape[0]
@@ -27,8 +29,7 @@ def sinkhorn_log(a, b, M, reg, numItermax=1000, stopThr=1e-9, verbose=False, log
     else:
         n_hists = 0
 
-    if n_hists:  # we do not want to use tensors sor we do a loop
-
+    if n_hists: 
         lst_loss = []
         lst_u = []
         lst_v = []
@@ -70,7 +71,7 @@ def sinkhorn_log(a, b, M, reg, numItermax=1000, stopThr=1e-9, verbose=False, log
 
         err = 1
         for ii in range(numItermax):
-
+            # print("Sinkhorn Iteration " + str(ii) + ": ", datetime.now().time())
             v = logb - nx.logsumexp(Mr + u[:, None], 0)
             u = loga - nx.logsumexp(Mr + v[None, :], 1)
 
@@ -141,6 +142,7 @@ def greenkhorn(a, b, M, reg, numItermax=10000, stopThr=1e-9, verbose=False, log=
         m_viol_1 = nx.abs(viol[i_1])
         m_viol_2 = nx.abs(viol_2[i_2])
         stopThr_val = nx.maximum(m_viol_1, m_viol_2)
+        # print("Greenkhorn Iteration " + str(ii) + ": ", datetime.now().time())
 
         if m_viol_1 > m_viol_2:
             old_u = u[i_1]

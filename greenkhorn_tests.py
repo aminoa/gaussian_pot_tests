@@ -29,7 +29,7 @@ def benchmark(a, b, M, lambd, hornIterations=100000, verbose=False):
 
     # random greenkhorn solver (bregman)
     start_time = time.time()
-    GR = matrix_scaling_modified.greenkhorn_modified(a, b, M, lambd, numItermax=hornIterations)
+    GR = matrix_scaling_modified.greenkhorn_basic_rng(a, b, M, lambd, numItermax=hornIterations)
     end_time = time.time()
     GR_time = end_time - start_time
     GR_mse = mean_squared_error(GR, G0)
@@ -85,7 +85,7 @@ def benchmark_results(a, b, size, lambd, iterations, horn_iterations, verbose=Tr
     M_G_results = repeated_benchmark(a, b, M_G, lambd, iterations, horn_iterations, verbose=True)
     return M_C_results, M_R_results, M_G_results
 
-size = 784 # needed for image testing
+size = 10 # needed for image testing
 max = 10000
 lambd = 100
 iterations = 10
