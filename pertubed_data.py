@@ -20,14 +20,14 @@ def benchmark(a, b, M, lambd, iterations, hornIterations, error_allowed, verbose
 
         # # sinkhorn solver (bregman)
         start_time = time.time()
-        GS = sinkhorn_log(a, b, M, lambd, numItermax=hornIterations, method="sinkhorn_log")
+        GS = sinkhorn_log(a, b, M, lambd, numItermax=hornIterations, method="sinkhorn_log", stopThr=error_allowed)
         end_time = time.time()
         GS_time = end_time - start_time
         GS_mse = mean_squared_error(GS, G0)
 
         # greenkhorn solver (bregman)
         start_time = time.time()
-        GG = greenkhorn(a, b, M, lambd, hornIterations, error_allowed)
+        GG = greenkhorn(a, b, M, lambd, hornIterations, stopThr=error_allowed)
         end_time = time.time()
         GG_mse = mean_squared_error(GG, G0)
         GG_time = end_time - start_time
@@ -79,7 +79,7 @@ size = 1000 #10000 takes a bit more time
 max = 1000
 lambd = 1
 iterations = 5
-horn_iterations = 10000
+# horn_iterations = 10000 remove this 
 error_allowed = 0.1
 
 
